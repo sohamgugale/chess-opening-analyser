@@ -300,7 +300,6 @@ def main():
                 
                 # Outcome distribution
                 viz = OpeningVisualizer()
-        chart_template = 'plotly_dark' 
                 fig_outcomes = viz.create_outcome_distribution(optimal_opening)
                 st.plotly_chart(fig_outcomes, use_container_width=True)
             
@@ -352,7 +351,6 @@ def main():
         
         # Efficient frontier
         viz = OpeningVisualizer()
-        chart_template = 'plotly_dark' 
         fig_frontier = viz.create_efficient_frontier(df_filtered)
         st.plotly_chart(fig_frontier, use_container_width=True)
         
@@ -404,7 +402,6 @@ def main():
             
             # Performance by rating
             viz = OpeningVisualizer()
-        chart_template = 'plotly_dark' 
             fig_rating = viz.create_rating_comparison(opening_data, selected_opening)
             st.plotly_chart(fig_rating, use_container_width=True)
             
