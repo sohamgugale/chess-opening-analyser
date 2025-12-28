@@ -1,19 +1,8 @@
-# Core Data Processing
 pandas==2.2.0
 numpy==1.26.3
-
-# Chess Analysis
 chess==1.10.0
 python-chess==1.999
-
-# Data Fetching
 requests==2.31.0
-
-# Visualization
 plotly==5.18.0
-
-# Web App
 streamlit==1.29.0
-
-# Utilities
 tqdm==4.66.1
