@@ -55,7 +55,7 @@ class OpeningVisualizer:
             showlegend=False,
             hovermode='closest',
             height=600,
-            template='plotly_white'
+            template='plotly_dark'
         )
         
         return fig
@@ -89,7 +89,7 @@ class OpeningVisualizer:
             xaxis_title="Sharpe Ratio",
             yaxis_title="",
             height=500,
-            template='plotly_white'
+            template='plotly_dark'
         )
         
         return fig
@@ -99,7 +99,7 @@ class OpeningVisualizer:
         """Create pie chart of game outcomes"""
         labels = ['Wins', 'Draws', 'Losses']
         values = [metrics['wins'], metrics['draws'], metrics['losses']]
-        colors = ['#2ecc71', '#f39c12', '#e74c3c']
+        colors = ['#27ae60', '#e67e22', '#c0392b']
         
         fig = go.Figure(data=[go.Pie(
             labels=labels,
@@ -113,7 +113,7 @@ class OpeningVisualizer:
         fig.update_layout(
             title=f"{metrics['opening_name']} - Outcome Distribution",
             height=400,
-            template='plotly_white'
+            template='plotly_dark'
         )
         
         return fig
@@ -155,7 +155,7 @@ class OpeningVisualizer:
             yaxis_title="Percentage (%)",
             barmode='stack',
             height=500,
-            template='plotly_white'
+            template='plotly_dark'
         )
         
         return fig

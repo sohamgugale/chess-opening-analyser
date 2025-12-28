@@ -23,7 +23,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS
+# Custom CSS - Dark theme compatible
 st.markdown("""
 <style>
     .main-header {
@@ -37,21 +37,32 @@ st.markdown("""
     }
     .sub-header {
         text-align: center;
-        color: #666;
+        color: #a0a0a0;
         margin-bottom: 2rem;
     }
     .metric-card {
-        background-color: #f0f2f6;
+        background-color: rgba(28, 131, 225, 0.1);
         padding: 1rem;
         border-radius: 0.5rem;
         border-left: 4px solid #667eea;
+        color: inherit;
     }
     .info-box {
-        background-color: #e8f4f8;
+        background-color: rgba(28, 131, 225, 0.1);
         padding: 1rem;
         border-radius: 0.5rem;
         border-left: 4px solid #3498db;
         margin: 1rem 0;
+        color: inherit;
+    }
+    /* Fix opening moves box */
+    div[style*="background-color: #f0f2f6"] {
+        background-color: rgba(28, 131, 225, 0.1) !important;
+        color: inherit !important;
+    }
+    /* Ensure all text is visible */
+    .stMarkdown, p, span, div {
+        color: inherit;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -257,10 +268,10 @@ def main():
                     description = opening_games['opening_description'].iloc[0] if 'opening_description' in opening_games.columns else ""
                     
                     st.markdown(f"""
-                    <div style="background-color: #f0f2f6; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0;">
-                        <b>Opening Moves:</b><br>
-                        <code style="font-size: 1.1em;">{moves}</code><br><br>
-                        <small>{description}</small>
+                    <div style="background-color: rgba(28, 131, 225, 0.1); padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; border-left: 4px solid #667eea;">
+                        <b style="color: #667eea;">Opening Moves:</b><br>
+                        <code style="font-size: 1.1em; background-color: rgba(0, 0, 0, 0.2); padding: 0.5rem; border-radius: 0.3rem; display: inline-block; margin: 0.5rem 0;">{moves}</code><br><br>
+                        <small style="color: inherit; opacity: 0.8;">{description}</small>
                     </div>
                     """, unsafe_allow_html=True)
                 
@@ -289,6 +300,7 @@ def main():
                 
                 # Outcome distribution
                 viz = OpeningVisualizer()
+        chart_template = 'plotly_dark' 
                 fig_outcomes = viz.create_outcome_distribution(optimal_opening)
                 st.plotly_chart(fig_outcomes, use_container_width=True)
             
@@ -340,6 +352,7 @@ def main():
         
         # Efficient frontier
         viz = OpeningVisualizer()
+        chart_template = 'plotly_dark' 
         fig_frontier = viz.create_efficient_frontier(df_filtered)
         st.plotly_chart(fig_frontier, use_container_width=True)
         
@@ -391,6 +404,7 @@ def main():
             
             # Performance by rating
             viz = OpeningVisualizer()
+        chart_template = 'plotly_dark' 
             fig_rating = viz.create_rating_comparison(opening_data, selected_opening)
             st.plotly_chart(fig_rating, use_container_width=True)
             
