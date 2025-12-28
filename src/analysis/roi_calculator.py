@@ -118,6 +118,14 @@ class OpeningROICalculator:
             metrics = self.calculate_opening_metrics(opening, rating_bin)
             if metrics:
                 results.append(metrics)
+        
+        # Return empty DataFrame with correct columns if no results
+        if len(results) == 0:
+            return pd.DataFrame(columns=[
+                'opening_eco', 'opening_name', 'total_games', 'wins', 'draws', 'losses',
+                'win_rate', 'draw_rate', 'loss_rate', 'expected_return', 'volatility',
+                'sharpe_ratio', 'roi', 'information_ratio', 'rating_bin'
+            ])
                 
         return pd.DataFrame(results).sort_values('sharpe_ratio', ascending=False)
     
@@ -128,7 +136,16 @@ class OpeningROICalculator:
         for rating_bin in self.df['rating_bin'].unique():
             if pd.notna(rating_bin):
                 results = self.calculate_all_openings(rating_bin)
-                all_results.append(results)
+                if len(results) > 0:
+                    all_results.append(results)
+        
+        # Return empty DataFrame if no results
+        if len(all_results) == 0:
+            return pd.DataFrame(columns=[
+                'opening_eco', 'opening_name', 'total_games', 'wins', 'draws', 'losses',
+                'win_rate', 'draw_rate', 'loss_rate', 'expected_return', 'volatility',
+                'sharpe_ratio', 'roi', 'information_ratio', 'rating_bin'
+            ])
                 
         return pd.concat(all_results, ignore_index=True)
     
@@ -141,7 +158,7 @@ class OpeningROICalculator:
             metric: Metric to optimize ('sharpe_ratio', 'roi', 'win_rate')
             
         Returns:
-            Best opening metrics
+            Best opening metrics or None if no data
         """
         # Determine rating bin
         if user_rating < 1400:
@@ -159,6 +176,10 @@ class OpeningROICalculator:
             
         # Get all openings for this rating
         openings = self.calculate_all_openings(rating_bin)
+        
+        # Check if we have any data
+        if len(openings) == 0:
+            return None
         
         # Filter for minimum sample size
         openings = openings[openings['total_games'] >= 10]

@@ -4,6 +4,7 @@ Applying financial analytics to chess opening selection
 """
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 import sys
 from pathlib import Path
 
@@ -141,33 +142,83 @@ def main():
         st.info("👈 Click 'Load Sample Data' in the sidebar to begin analysis")
         
         # Educational content
+        with st.expander("📚 Understanding the Metrics", expanded=False):
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("""
+                **📈 Expected Return** *(Your average score)*  
+                Think of this as your "batting average" with this opening:
+                - **0.60** = You score 60% on average (wins + half points for draws)
+                - **0.50** = Perfectly balanced (like flipping a coin)
+                - **0.40** = You're losing more than winning
+                
+                **🎯 Win Rate** *(How often you actually win)*  
+                Simple percentage of games you win:
+                - **50%** = You win half your games
+                - **35-45%** = Typical for most openings
+                - Higher = More decisive victories
+                
+                **🔄 Draw Rate** *(Games that end even)*  
+                Percentage of drawn games:
+                - Higher at master level (2200+)
+                - Lower at club level (1200-1800)
+                - Some openings naturally draw more
+                
+                **📊 Volatility** *(How consistent are results?)*  
+                Measures outcome unpredictability:
+                - **Low (0.3-0.4)** = Predictable, safe opening
+                - **High (0.5+)** = Wild swings, high-risk opening
+                - Think of it as "stability score"
+                """)
+            
+            with col2:
+                st.markdown("""
+                **💎 Sharpe Ratio** *(Best bang for your buck)*  
+                Like "return per unit of risk" in investing:
+                - **> 0.4** = Excellent risk-adjusted returns
+                - **0.2-0.4** = Good balance of safety and reward
+                - **< 0.2** = Risky relative to results
+                - **Higher is better** - you get more reward per risk taken
+                
+                **💰 ROI** *(Net profit/loss)*  
+                Your "profit margin" with this opening:
+                - **+30%** = Strong positive returns
+                - **0%** = Breaking even
+                - **-20%** = Losing proposition
+                - Treats wins as +100%, draws as 0%, losses as -100%
+                
+                **📉 Information Ratio** *(Beating the benchmark)*  
+                How much you outperform the "baseline" (draw = 50%):
+                - Measures excess return per unit of risk
+                - Positive = Better than just aiming for draws
+                - Higher values = More efficient outperformance
+                """)
+        
+        st.markdown("---")
+        
+        # Quick reference
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            st.markdown("""
-            ### 📈 Expected Return
-            Average points scored with this opening:
-            - **1.0** = Win
-            - **0.5** = Draw  
-            - **0.0** = Loss
+            st.info("""
+            **🎓 For Beginners:**  
+            Focus on **Win Rate** and **Expected Return**  
+            Pick openings where you score above 0.50
             """)
         
         with col2:
-            st.markdown("""
-            ### 📊 Sharpe Ratio
-            Risk-adjusted performance metric:
-            - **> 0.5** = Excellent
-            - **0.2-0.5** = Good
-            - **< 0.2** = Below average
+            st.info("""
+            **⚡ For Improvers:**  
+            Balance **Sharpe Ratio** with **Win Rate**  
+            Find openings with good risk/reward
             """)
         
         with col3:
-            st.markdown("""
-            ### 💰 ROI
-            Return on investment:
-            - **Positive** = Net gains
-            - **Negative** = Net losses
-            - Considers volatility
+            st.info("""
+            **🏆 For Advanced:**  
+            Optimize **Sharpe Ratio** and **ROI**  
+            Minimize volatility, maximize efficiency
             """)
         
         return
@@ -187,19 +238,54 @@ def main():
         calculator = OpeningROICalculator(st.session_state.df_games)
         optimal_opening = calculator.get_optimal_opening(user_rating, optimization_metric)
         
-        if optimal_opening:
+        if optimal_opening is None:
+            st.warning(f"⚠️ Insufficient data for rating {user_rating}")
+            st.info("Please try a different rating range (1200-2200 has the most data)")
+        elif optimal_opening:
             col1, col2 = st.columns([2, 1])
             
             with col1:
                 st.subheader(f"Recommended: {optimal_opening['opening_name']}")
                 st.caption(f"ECO Code: {optimal_opening['opening_eco']} | Rating Range: {optimal_opening['rating_bin']}")
                 
-                # Key metrics
+                # Show opening moves if available
+                opening_games = st.session_state.df_games[
+                    st.session_state.df_games['opening_eco'] == optimal_opening['opening_eco']
+                ]
+                if len(opening_games) > 0 and 'opening_moves' in opening_games.columns:
+                    moves = opening_games['opening_moves'].iloc[0]
+                    description = opening_games['opening_description'].iloc[0] if 'opening_description' in opening_games.columns else ""
+                    
+                    st.markdown(f"""
+                    <div style="background-color: #f0f2f6; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0;">
+                        <b>Opening Moves:</b><br>
+                        <code style="font-size: 1.1em;">{moves}</code><br><br>
+                        <small>{description}</small>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                # Key metrics with tooltips
                 metric_cols = st.columns(4)
-                metric_cols[0].metric("Expected Return", f"{optimal_opening['expected_return']:.3f}")
-                metric_cols[1].metric("Win Rate", f"{optimal_opening['win_rate']*100:.1f}%")
-                metric_cols[2].metric("Sharpe Ratio", f"{optimal_opening['sharpe_ratio']:.3f}")
-                metric_cols[3].metric("ROI", f"{optimal_opening['roi']:.1f}%")
+                metric_cols[0].metric(
+                    "Expected Return", 
+                    f"{optimal_opening['expected_return']:.3f}",
+                    help="Your average score: 1.0=win, 0.5=draw, 0.0=loss. Above 0.50 means you score more than you lose."
+                )
+                metric_cols[1].metric(
+                    "Win Rate", 
+                    f"{optimal_opening['win_rate']*100:.1f}%",
+                    help="Percentage of games you win outright. 40-50% is typical for most openings."
+                )
+                metric_cols[2].metric(
+                    "Sharpe Ratio", 
+                    f"{optimal_opening['sharpe_ratio']:.3f}",
+                    help="Risk-adjusted returns. Higher is better. >0.3 is good, >0.5 is excellent."
+                )
+                metric_cols[3].metric(
+                    "ROI", 
+                    f"{optimal_opening['roi']:.1f}%",
+                    help="Net profit/loss treating wins as +100%, losses as -100%. Positive is good!"
+                )
                 
                 # Outcome distribution
                 viz = OpeningVisualizer()
@@ -296,7 +382,7 @@ def main():
             st.subheader(f"{opening_data.iloc[0]['opening_name']} - Performance Metrics")
             
             col1, col2, col3, col4 = st.columns(4)
-            avg_metrics = opening_data.mean()
+            avg_metrics = opening_data.mean(numeric_only=True)
             
             col1.metric("Avg Win Rate", f"{avg_metrics['win_rate']*100:.1f}%")
             col2.metric("Avg Sharpe Ratio", f"{avg_metrics['sharpe_ratio']:.3f}")
