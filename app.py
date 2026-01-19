@@ -631,14 +631,23 @@ def main():
         with tabs[0]:
             st.markdown('<h2 style="font-family: Cinzel, serif; color: #d4af37; text-align: center;">♔ Recommended Opening for Your Rating</h2>', unsafe_allow_html=True)
             
-            # Find rating bin
+            # Find rating bin with error handling
             rating_bins = st.session_state.df_metrics['rating_bin'].unique()
             user_bin = None
             for rb in rating_bins:
-                low, high = map(int, rb.split('-'))
-                if low <= user_rating <= high:
-                    user_bin = rb
-                    break
+                try:
+                    # Handle different rating bin formats
+                    if '-' in str(rb):
+                        low, high = map(int, str(rb).split('-'))
+                        if low <= user_rating <= high:
+                            user_bin = rb
+                            break
+                except (ValueError, AttributeError):
+                    continue  # Skip malformed rating bins
+            
+            # If no exact match found, use the closest rating bin
+            if user_bin is None and len(rating_bins) > 0:
+                user_bin = rating_bins[0]
             
             if user_bin:
                 df_user = st.session_state.df_metrics[
