@@ -1,10 +1,15 @@
 [theme]
-primaryColor = "#667eea"
-backgroundColor = "#0e1117"
-secondaryBackgroundColor = "#262730"
-textColor = "#fafafa"
-font = "sans serif"
+primaryColor = "#d4af37"  # Chess gold
+backgroundColor = "#1a1410"  # Chess dark
+secondaryBackgroundColor = "#2d2419"  # Slightly lighter dark
+textColor = "#fffff0"  # Chess ivory
+font = "serif"
 
 [server]
 headless = true
 port = 8501
+enableCORS = false
+enableXsrfProtection = true
+
+[browser]
+gatherUsageStats = false
