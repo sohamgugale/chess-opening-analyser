@@ -704,14 +704,29 @@ def main():
                     </div>
                     """, unsafe_allow_html=True)
                     
+                    # Get metric description
+                    metric_descriptions = {
+                        'sharpe_ratio': 'risk-adjusted returns',
+                        'roi': 'ROI',
+                        'win_rate': 'win rate'
+                    }
+                    metric_desc = metric_descriptions.get(optimization_metric, 'performance')
+                    
+                    metric_recommendations = {
+                        'sharpe_ratio': 'optimal risk/reward balance',
+                        'roi': 'maximum profitability',
+                        'win_rate': 'highest win percentage'
+                    }
+                    metric_rec = metric_recommendations.get(optimization_metric, 'strong performance')
+                    
                     st.markdown(f"""
                     <div class="metric-card">
                     <b>💡 Strategic Insight</b><br><br>
                     Based on {optimal_opening['total_games']} games at your rating level ({user_bin}), 
-                    this opening offers the best {{'sharpe_ratio': 'risk-adjusted returns', 'roi': 'ROI', 'win_rate': 'win rate'}[optimization_metric]} 
+                    this opening offers the best {metric_desc} 
                     while maintaining acceptable risk levels.
                     <br><br>
-                    <span style="color: #d4af37;">Recommended for players seeking {{'sharpe_ratio': 'optimal risk/reward balance', 'roi': 'maximum profitability', 'win_rate': 'highest win percentage'}[optimization_metric]}.</span>
+                    <span style="color: #d4af37;">Recommended for players seeking {metric_rec}.</span>
                     </div>
                     """, unsafe_allow_html=True)
             else:
